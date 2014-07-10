@@ -1,4 +1,4 @@
-package com.chang.gettingstarted2.app;
+package com.chang.am.app;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -8,25 +8,22 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ShareActionProvider;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
@@ -36,18 +33,18 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
-    TextView mainTextView;
-    Button mainButton;
+    ImageButton mainButton;
     EditText mainEditText;
-    ListView mainListView;
-    JSONAdapter mJSONAdapter;
+    GridView mainGridView;
+    ImageAdapter mImageAdapter;
     ArrayList mNameList = new ArrayList();
     ShareActionProvider mShareActionProvider;
     private static final String PREFS = "prefs";
     private static final String PREF_NAME = "name";
     SharedPreferences mSharedPreferences;
 
-    private static String QUERY_URL = "http://openlibrary.org/search.json?q=";
+    private static String api_key = "api_key=OOslfso5nAGPXxWH8bXp0PxNt4grG6MybaItGSLWyXyRK9Gsmc";
+    private static String BLOG_QUERY_URL = "http://api.tumblr.com/v2/blog/koreanmodel.tumblr.com/posts/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,31 +56,31 @@ public class MainActivity extends Activity implements View.OnClickListener, Adap
         setContentView(R.layout.activity_main);
         // 1. Access the TextView defined in layout XML
         // and then set its text
-        mainTextView = (TextView) findViewById(R.id.main_textview);
+        //mainTextView = (TextView) findViewById(R.id.main_textview);
 
         // 2. Access the Button defined in layout XML
         // and listen for it here
-        mainButton = (Button) findViewById(R.id.main_button);
+        mainButton = (ImageButton) findViewById(R.id.main_button);
         mainButton.setOnClickListener(this);
 
         // 3. Access the EditText defined in layout XML
         mainEditText = (EditText) findViewById(R.id.main_edittext);
 
-        // 4. Access the ListView
-        mainListView = (ListView) findViewById(R.id.main_listview);
-
+        // 4. Access the GridView
+        mainGridView = (GridView) findViewById(R.id.main_gridview);
 
         // 5. Set this activity to react to list items being pressed
-        mainListView.setOnItemClickListener(this);
+        mainGridView.setOnItemClickListener(this);
 
         // 7. Greet the user, or ask for their name if new
         displayWelcome();
 
-        // 10. Create a JSONAdapter for the ListView
-        mJSONAdapter = new JSONAdapter(this, getLayoutInflater());
+        // 10. Create a ImageAdapter for the GridView
+        mImageAdapter = new ImageAdapter(this);
 
-        // Set the ListView to use the ArrayAdapter
-        mainListView.setAdapter(mJSONAdapter);
+        // Set the GridView to use the ImageAdapter
+        mainGridView.setAdapter(mImageAdapter);
+
     }
 
 
@@ -118,8 +115,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Adap
             // create an Intent with the contents of the TextView
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Android Development");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, mainTextView.getText());
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Frashion");
+            //shareIntent.putExtra(Intent.EXTRA_TEXT, mainTextView.getText());
 
             // Make sure the provider knows
             // it should work with that Intent
@@ -145,14 +142,25 @@ public class MainActivity extends Activity implements View.OnClickListener, Adap
         setShareIntent();**/
 
         // 9. Take what was typed into the EditText and use in search
-        queryBooks(mainEditText.getText().toString());
+        queryName(mainEditText.getText().toString());
     }
 
     @Override
     public void onItemClick(AdapterView parent, View view, int position, long id) {
         // 12. Now that the user's chosen a book, grab the cover data
-        JSONObject jsonObject = (JSONObject) mJSONAdapter.getItem(position);
+        JSONObject jsonObject = (JSONObject) mImageAdapter.getItem(position);
         String coverID = jsonObject.optString("cover_i", "");
+        //String titleText = jsonObject.optString("title", "title");
+        String titleText = mainEditText.getText().toString().toUpperCase();
+        String authorText = "";
+        try {
+            JSONArray authors = jsonObject.getJSONArray("author_name");
+            for (int i=1;i< authors.length();i++) {
+                authorText += authors.getString(i) + " ";
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         //create an Intent to take you over to a new Detailactivity
         Intent detailIntent = new Intent(this, DetailActivity.class);
@@ -160,8 +168,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Adap
         //pack away the data about the cover
         //into your Intent before you head out
         detailIntent.putExtra("coverID", coverID);
-
-        //TODO:add any other data you'd like as Extras
+        detailIntent.putExtra("author_name", authorText);
+        detailIntent.putExtra("title", titleText);
 
         //Start the next activity using your preparedIntent
         startActivity(detailIntent);
@@ -216,7 +224,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Adap
         }
     }
 
-    private void queryBooks(String searchString) {
+    private void queryName(String searchString) {
 
         // Prepare your search string to be put in a URL
         // It might have reserved characters or something
@@ -236,7 +244,11 @@ public class MainActivity extends Activity implements View.OnClickListener, Adap
         setProgressBarIndeterminateVisibility(true);
         // Have the client get a JSONArray of data
         // and define how to respond
-        client.get(QUERY_URL + urlString, new JsonHttpResponseHandler(){
+        String photoURLString = "photo?tag=";
+        //TO-DO: Create enum for other choices text, etc.
+        String fullURL = BLOG_QUERY_URL + photoURLString + urlString + "&" + api_key;
+
+        client.get(fullURL, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(JSONObject jsonObject){
                 // 11. stop progress bar
@@ -245,8 +257,16 @@ public class MainActivity extends Activity implements View.OnClickListener, Adap
                 // to announce your success
                 Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_LONG).show();
 
-                // update the data in your custom method.
-                mJSONAdapter.updateData(jsonObject.optJSONArray("docs"));
+                try {
+                    // update the data in your custom method.
+                    JSONObject res = jsonObject.getJSONObject("response");
+                    System.out.println(res);
+                    JSONObject posts = res.optJSONObject("posts");
+                    JSONArray photos = res.optJSONArray("posts");
+                    mImageAdapter.updateData(photos);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override

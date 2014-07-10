@@ -1,4 +1,4 @@
-package com.chang.gettingstarted2.app;
+package com.chang.am.app;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.chang.am.app.R;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -53,14 +54,14 @@ public class JSONAdapter extends BaseAdapter{
         // if so, no need to inflate and findViewById again!
         if (convertView == null) {
 
-            // Inflate the custom row layout from your XML.
+            // Inflate the custom row layout from your XML
             convertView = mInflater.inflate(R.layout.row_book, null);
 
             // create a new "Holder" with subviews
             holder = new ViewHolder();
             holder.thumbnailImageView = (ImageView) convertView.findViewById(R.id.img_thumbnail);
-            holder.titleTextView = (TextView) convertView.findViewById(R.id.text_title);
-            holder.authorTextView = (TextView) convertView.findViewById(R.id.text_author);
+            holder.titleTextView = (TextView) convertView.findViewById(R.id.text_name);
+            holder.authorTextView = (TextView) convertView.findViewById(R.id.text_caption);
 
             // hang onto this holder for future recyclage
             convertView.setTag(holder);
@@ -70,7 +71,7 @@ public class JSONAdapter extends BaseAdapter{
             // and just get the holder you already made
             holder = (ViewHolder) convertView.getTag();
         }
-        // More code after this
+
         //Get the current book's data in JSON form
         JSONObject jsonObject = (JSONObject) getItem(position);
 

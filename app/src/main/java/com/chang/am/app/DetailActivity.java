@@ -1,4 +1,4 @@
-package com.chang.gettingstarted2.app;
+package com.chang.am.app;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,7 +7,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.ShareActionProvider;
+import android.widget.TextView;
 
+import com.chang.am.app.R;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -29,21 +31,27 @@ public class DetailActivity extends Activity {
         // Enable the "Up" button for more navigation options
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //Set the detail text
+        TextView detailTextView = (TextView) findViewById(R.id.detail_text);
+
         // Access the imageview from XML
         ImageView imageView = (ImageView) findViewById(R.id.img_cover);
 
         // 13. unpack the coverID from its trip inside your Intent
-        String coverID = this.getIntent().getExtras().getString("coverID");
+        Bundle extras = this.getIntent().getExtras();
+        String coverID = extras.getString("coverID");
 
         // See if there is a valid coverID
         if (coverID.length() > 0) {
 
             // Use the ID to construct an image URL
-            mImageURL = IMAGE_URL_BASE + coverID + "-L.jpg";
+            mImageURL = IMAGE_URL_BASE + coverID + "-M.jpg";
 
             // Use Picasso to load the image
             Picasso.with(this).load(mImageURL).placeholder(R.drawable.img_books_loading).into(imageView);
         }
+
+        detailTextView.setText(extras.getString("title") + "\n" + extras.getString("author_name"));
     }
 
     private void setShareIntent() {

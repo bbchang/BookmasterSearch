@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Bookmaster Search.iml" filepath="$PROJECT_DIR$/Bookmaster Search.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Frash.iml" filepath="$PROJECT_DIR$/Frash.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GettingStarted2.iml" filepath="$PROJECT_DIR$/GettingStarted2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GettingStarted2.iml" filepath="$PROJECT_DIR$/GettingStarted2.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
